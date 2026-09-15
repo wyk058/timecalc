@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>節目時間計算機</title>
   <style>
     :root {
@@ -35,11 +35,11 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang TC", "Microsoft JhengHei", monospace;
     }
 
-    /* 鎖死視窗高度，徹底防止任何上下滾動 */
+    /* 視窗極限鎖死，防止整頁滾動 */
     html, body {
       width: 100%;
       height: 100%;
-      height: 100dvh; /* 適配手機動態網址列 */
+      height: 100dvh;
       overflow: hidden;
       background: var(--bg);
       display: flex;
@@ -53,112 +53,93 @@
       width: 100%;
       max-width: 860px;
       height: 96%;
-      max-height: 780px;
+      max-height: 800px;
       background: var(--calc-bg);
-      padding: 24px;
+      padding: 20px;
       border-radius: 28px;
       box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
       border: 1px solid #e2e8f0;
+      position: relative;
     }
 
-    /* 計算機面板 */
+    /* 計算機主要視窗 */
     .calculator {
       flex: 1.4;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 12px;
       height: 100%;
+      min-width: 0; /* 防止子元素撐爆 flex */
     }
 
-    /* 螢幕區域 */
+    /* 螢幕顯示區 */
     .display-screen {
       background: var(--screen-bg);
-      border-radius: 20px;
-      padding: 14px 20px;
+      border-radius: 18px;
+      padding: 12px 18px;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       border: 2px solid var(--screen-border);
       flex-shrink: 0;
+      position: relative;
+    }
+
+    /* 手機版歷程快捷鈕（平時在右上角） */
+    .mobile-hist-toggle {
+      display: none;
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #e2e8f0;
+      color: var(--text-main);
+      border: 1px solid #cbd5e1;
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      z-index: 5;
     }
 
     .expr-history {
-      font-size: 1.3rem;
+      font-size: 1.25rem;
       font-weight: 600;
       color: var(--text-muted);
-      min-height: 28px;
+      min-height: 26px;
       text-align: center;
       width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .current-val {
       font-size: 4.2rem;
       font-weight: 900;
       color: var(--text-main);
-      letter-spacing: 3px;
+      letter-spacing: 2px;
       font-variant-numeric: tabular-nums;
       line-height: 1.1;
       text-align: center;
       width: 100%;
     }
 
-    /* 手機專屬頂部橫向快速歷程欄（電腦平板上隱藏） */
-    .mobile-recent-bar {
-      display: none;
-      align-items: center;
-      gap: 8px;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 6px 10px;
-      flex-shrink: 0;
-    }
-
-    .mobile-recent-scroll {
-      flex: 1;
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      white-space: nowrap;
-      scrollbar-width: none;
-    }
-    .mobile-recent-scroll::-webkit-scrollbar { display: none; }
-
-    .recent-chip {
-      background: #ffffff;
-      border: 1px solid #cbd5e1;
-      padding: 4px 10px;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      color: var(--text-main);
-      font-weight: 600;
-    }
-
-    .btn-view-hist {
-      background: #e2e8f0;
-      border: none;
-      border-radius: 8px;
-      padding: 4px 10px;
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: var(--text-main);
-      cursor: pointer;
-    }
-
-    /* 按鍵區域：自動拉伸填滿剩餘高度 */
+    /* 鍵盤區：5 列排版自適應填滿 */
     .keypad {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       grid-template-rows: repeat(5, 1fr);
-      gap: 12px;
+      gap: 10px;
       flex: 1;
+      min-height: 0;
     }
 
     button {
       border: 1.5px solid var(--btn-num-border);
       outline: none;
-      border-radius: 16px;
+      border-radius: 14px;
       font-size: 2rem;
       font-weight: 800;
       color: var(--btn-num-text);
@@ -168,8 +149,8 @@
       justify-content: center;
       align-items: center;
       touch-action: manipulation;
-      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.03);
-      transition: background 0.12s, transform 0.06s;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+      transition: background 0.1s, transform 0.05s;
     }
 
     button:active {
@@ -190,7 +171,7 @@
       background: var(--btn-fn);
       color: var(--btn-fn-text);
       border: 1.5px solid #cbd5e1;
-      font-size: 1.7rem;
+      font-size: 1.6rem;
     }
 
     button.btn-equal {
@@ -202,16 +183,17 @@
       height: 100%;
     }
 
-    /* 電腦平板歷程側邊欄 */
+    /* 電腦/平板側邊欄 */
     .history-panel {
       flex: 0.9;
       background: var(--screen-bg);
-      border-radius: 20px;
+      border-radius: 18px;
       padding: 16px;
       display: flex;
       flex-direction: column;
       border: 2px solid var(--screen-border);
       height: 100%;
+      min-width: 0;
     }
 
     .history-header {
@@ -221,6 +203,7 @@
       margin-bottom: 10px;
       padding-bottom: 8px;
       border-bottom: 2px solid #e2e8f0;
+      flex-shrink: 0;
     }
 
     .history-header span {
@@ -244,6 +227,7 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
+      padding-right: 4px;
     }
 
     .history-item {
@@ -253,7 +237,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 3px;
+      gap: 2px;
       border: 1px solid #e2e8f0;
       flex-shrink: 0;
     }
@@ -262,59 +246,64 @@
       color: var(--text-muted);
       font-size: 1rem;
       font-weight: 600;
+      word-break: break-all;
     }
 
     .history-item .hist-res {
       color: var(--accent);
       font-weight: 900;
-      font-size: 1.4rem;
+      font-size: 1.35rem;
     }
 
-    /* 彈出式全螢幕歷程（手機專用） */
-    .modal-overlay {
+    /* 手機版全螢幕防破圖抽屜 */
+    .drawer-overlay {
       display: none;
       position: fixed;
-      inset: 0;
-      background: rgba(15, 23, 42, 0.6);
-      z-index: 100;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100dvh;
+      background: rgba(15, 23, 42, 0.5);
+      z-index: 999;
       justify-content: center;
       align-items: flex-end;
     }
 
-    .modal-sheet {
-      background: #ffffff;
+    .drawer-content {
       width: 100%;
-      max-height: 70vh;
+      max-height: 75dvh;
+      background: #ffffff;
       border-radius: 20px 20px 0 0;
       padding: 18px;
       display: flex;
       flex-direction: column;
       gap: 12px;
+      box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.15);
     }
 
-    /* 手機螢幕優化 (直立) */
+    /* 手機版適配（< 720px） */
     @media (max-width: 720px) {
       body {
         padding: 0;
       }
 
       .wrapper {
-        width: 100%;
-        height: 100%;
+        width: 100vw;
+        height: 100dvh;
         max-height: 100dvh;
         border-radius: 0;
         border: none;
         padding: 12px;
-        gap: 0;
       }
 
-      /* 手機上直接隱藏側邊面板，把空間留給計算機 */
+      /* 隱藏桌面側欄，避免壓縮破圖 */
       .history-panel {
         display: none;
       }
 
-      .mobile-recent-bar {
-        display: flex;
+      /* 顯示歷程按鈕 */
+      .mobile-hist-toggle {
+        display: block;
       }
 
       .calculator {
@@ -322,16 +311,11 @@
       }
 
       .display-screen {
-        padding: 10px 14px;
+        padding: 12px 10px;
       }
 
       .current-val {
         font-size: 3.4rem;
-      }
-
-      .expr-history {
-        font-size: 1.1rem;
-        min-height: 22px;
       }
 
       .keypad {
@@ -339,7 +323,7 @@
       }
 
       button {
-        border-radius: 14px;
+        border-radius: 12px;
         font-size: 1.8rem;
       }
     }
@@ -348,23 +332,14 @@
 <body>
 
 <div class="wrapper">
-  <!-- 計算機面板 -->
+  <!-- 計算機主面板 -->
   <div class="calculator">
-    <!-- 手機專屬：橫向滾動單行歷程列 -->
-    <div class="mobile-recent-bar">
-      <div class="mobile-recent-scroll" id="recentChips">
-        <span style="color: var(--text-muted); font-size: 0.85rem; padding: 4px;">尚無歷程</span>
-      </div>
-      <button class="btn-view-hist" onclick="openHistoryModal()">📋 歷程</button>
-    </div>
-
-    <!-- 螢幕區 -->
     <div class="display-screen">
+      <button class="mobile-hist-toggle" onclick="toggleDrawer(true)">📋 歷程</button>
       <div class="expr-history" id="exprDisplay"></div>
       <div class="current-val" id="valDisplay">00:00</div>
     </div>
 
-    <!-- 鍵盤區 -->
     <div class="keypad">
       <!-- Row 1 -->
       <button class="btn-fn" onclick="pressClear()">AC</button>
@@ -395,7 +370,7 @@
     </div>
   </div>
 
-  <!-- 電腦/平板常規側欄 -->
+  <!-- 電腦/平板常設右側欄 -->
   <div class="history-panel">
     <div class="history-header">
       <span>計算歷程 (Rundown)</span>
@@ -405,17 +380,17 @@
   </div>
 </div>
 
-<!-- 手機彈出式完整歷程選單 -->
-<div class="modal-overlay" id="historyModal" onclick="closeHistoryModal(event)">
-  <div class="modal-sheet" onclick="event.stopPropagation()">
+<!-- 手機防破圖專用抽屜 -->
+<div class="drawer-overlay" id="mobileDrawer" onclick="toggleDrawer(false)">
+  <div class="drawer-content" onclick="event.stopPropagation()">
     <div class="history-header">
-      <span>計算歷程清單</span>
-      <div style="display:flex; gap:12px;">
+      <span>計算歷程</span>
+      <div style="display:flex; gap:16px;">
         <button class="clear-btn" onclick="clearHistory()">清空</button>
-        <button class="clear-btn" style="color:var(--text-main);" onclick="closeHistoryModal()">關閉</button>
+        <button class="clear-btn" style="color:var(--text-main);" onclick="toggleDrawer(false)">關閉</button>
       </div>
     </div>
-    <div class="history-list" id="modalHistoryList" style="max-height: 50vh; overflow-y: auto;"></div>
+    <div class="history-list" id="mobileHistoryList" style="max-height: 60dvh;"></div>
   </div>
 </div>
 
@@ -428,9 +403,8 @@
   const valDisplay = document.getElementById("valDisplay");
   const exprDisplay = document.getElementById("exprDisplay");
   const desktopHistoryList = document.getElementById("desktopHistoryList");
-  const modalHistoryList = document.getElementById("modalHistoryList");
-  const recentChips = document.getElementById("recentChips");
-  const historyModal = document.getElementById("historyModal");
+  const mobileHistoryList = document.getElementById("mobileHistoryList");
+  const mobileDrawer = document.getElementById("mobileDrawer");
 
   function digitsToTime(str) {
     if (!str || str === "0") return { m: 0, s: 0, formatted: "00:00", totalSec: 0 };
@@ -531,36 +505,27 @@
   }
 
   function addHistory(eq, res) {
-    // 側邊欄項目
-    const item = document.createElement("div");
-    item.className = "history-item";
-    item.innerHTML = `<span class="hist-eq">${eq}</span><span class="hist-res">= ${res}</span>`;
-    desktopHistoryList.prepend(item);
+    // 桌面版側欄
+    const item1 = document.createElement("div");
+    item1.className = "history-item";
+    item1.innerHTML = `<span class="hist-eq">${eq}</span><span class="hist-res">= ${res}</span>`;
+    desktopHistoryList.prepend(item1);
 
-    // 彈出視窗項目
-    const modalItem = item.cloneNode(true);
-    modalHistoryList.prepend(modalItem);
-
-    // 手機橫向跑馬燈晶片
-    if (recentChips.children.length === 1 && recentChips.children[0].tagName === 'SPAN') {
-      recentChips.innerHTML = "";
-    }
-    const chip = document.createElement("div");
-    chip.className = "recent-chip";
-    chip.textContent = `${eq} = ${res}`;
-    recentChips.prepend(chip);
+    // 手機抽屜版
+    const item2 = item1.cloneNode(true);
+    mobileHistoryList.prepend(item2);
   }
 
   function clearHistory() {
     desktopHistoryList.innerHTML = "";
-    modalHistoryList.innerHTML = "";
-    recentChips.innerHTML = `<span style="color: var(--text-muted); font-size: 0.85rem; padding: 4px;">尚無歷程</span>`;
+    mobileHistoryList.innerHTML = "";
   }
 
-  function openHistoryModal() { historyModal.style.display = "flex"; }
-  function closeHistoryModal() { historyModal.style.display = "none"; }
+  function toggleDrawer(show) {
+    mobileDrawer.style.display = show ? "flex" : "none";
+  }
 
-  // 鍵盤監聽
+  // 實體鍵盤支援
   window.addEventListener("keydown", (e) => {
     if (e.key >= '0' && e.key <= '9') pressDigit(e.key);
     else if (e.key === '+') pressOp('+');
