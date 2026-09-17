@@ -34,7 +34,7 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang TC", "Microsoft JhengHei", monospace;
     }
 
-    /* 徹底關閉整頁滾動與手勢延遲 */
+    /* 視窗極限鎖死，防止整頁滾動 */
     html, body {
       width: 100%;
       height: 100%;
@@ -53,7 +53,7 @@
       width: 100%;
       max-width: 860px;
       height: 96%;
-      max-height: 800px;
+      max-height: 820px;
       background: var(--calc-bg);
       padding: 20px;
       border-radius: 28px;
@@ -66,15 +66,17 @@
       flex: 1.4;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      justify-content: center;
+      gap: 14px;
       height: 100%;
       min-width: 0;
     }
 
+    /* 顯示框：縮減留白高度，比例更精簡 */
     .display-screen {
       background: var(--screen-bg);
-      border-radius: 18px;
-      padding: 12px 18px;
+      border-radius: 16px;
+      padding: 10px 16px;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -82,19 +84,20 @@
       border: 2px solid var(--screen-border);
       flex-shrink: 0;
       position: relative;
+      min-height: 96px;
     }
 
     .mobile-hist-toggle {
       display: none;
       position: absolute;
-      top: 10px;
+      top: 8px;
       right: 10px;
       background: #e2e8f0;
       color: var(--text-main);
       border: 1px solid #cbd5e1;
-      padding: 6px 12px;
+      padding: 4px 10px;
       border-radius: 8px;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       font-weight: 700;
       cursor: pointer;
       z-index: 5;
@@ -102,10 +105,10 @@
     }
 
     .expr-history {
-      font-size: 1.25rem;
+      font-size: 1.15rem;
       font-weight: 600;
       color: var(--text-muted);
-      min-height: 26px;
+      min-height: 22px;
       text-align: center;
       width: 100%;
       overflow: hidden;
@@ -114,7 +117,7 @@
     }
 
     .current-val {
-      font-size: 4.2rem;
+      font-size: 3.6rem;
       font-weight: 900;
       color: var(--text-main);
       letter-spacing: 2px;
@@ -124,19 +127,25 @@
       width: 100%;
     }
 
+    /* 按鍵區：讓按鈕呈現接近 1:1 正方形 */
     .keypad {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       grid-template-rows: repeat(5, 1fr);
       gap: 10px;
-      flex: 1;
-      min-height: 0;
+      width: 100%;
+      /* 依寬度鎖定等比，維持正方形輪廓 */
+      aspect-ratio: 4 / 5;
+      max-height: calc(100% - 120px);
+      margin: 0 auto;
     }
 
     .calc-btn {
+      width: 100%;
+      height: 100%;
       border: 1.5px solid var(--btn-num-border);
       outline: none;
-      border-radius: 14px;
+      border-radius: 16px;
       font-size: 2rem;
       font-weight: 800;
       color: var(--btn-num-text);
@@ -177,6 +186,7 @@
       font-size: 2.4rem;
       grid-row: span 2;
       height: 100%;
+      border-radius: 16px;
     }
 
     /* 桌面側欄 */
@@ -277,7 +287,7 @@
       touch-action: pan-y;
     }
 
-    /* 手機直向適配 */
+    /* 手機直向最佳化 */
     @media (max-width: 720px) {
       body { padding: 0; }
       .wrapper {
@@ -286,15 +296,39 @@
         max-height: 100dvh;
         border-radius: 0;
         border: none;
-        padding: 12px;
+        padding: 16px 14px 20px 14px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
       }
       .history-panel { display: none; }
       .mobile-hist-toggle { display: block; }
-      .calculator { gap: 8px; }
-      .display-screen { padding: 12px 10px; }
-      .current-val { font-size: 3.4rem; }
-      .keypad { gap: 8px; }
-      .calc-btn { border-radius: 12px; font-size: 1.8rem; }
+      
+      .calculator {
+        gap: 12px;
+        justify-content: flex-end; /* 讓計算機往下方大拇指觸碰區集中 */
+      }
+
+      .display-screen {
+        padding: 12px 14px;
+        min-height: 90px;
+        margin-bottom: 4px;
+      }
+
+      .current-val { 
+        font-size: 3.2rem; 
+      }
+
+      .keypad {
+        gap: 10px;
+        aspect-ratio: 4 / 5; /* 在手機上嚴格鎖定 4:5 格局，按鍵呈現標準正方形 */
+        max-height: none;
+      }
+
+      .calc-btn { 
+        border-radius: 16px; 
+        font-size: 1.9rem; 
+      }
     }
   </style>
 </head>
@@ -376,7 +410,7 @@
 
   function triggerHaptic() {
     if ("vibrate" in navigator) {
-      navigator.vibrate(10); // 清脆微小震動反饋
+      navigator.vibrate(10);
     }
   }
 
@@ -493,10 +527,10 @@
     mobileHistoryList.innerHTML = "";
   }
 
-  // --- 高靈敏 Pointer 事件綁定（徹底解決延遲） ---
+  // Pointer 事件綁定
   document.querySelectorAll(".calc-btn").forEach(btn => {
     btn.addEventListener("pointerdown", (e) => {
-      e.preventDefault(); // 阻止觸發傳統 300ms click
+      e.preventDefault();
       btn.classList.add("pressed");
       triggerHaptic();
 
@@ -510,14 +544,13 @@
       else if (act === "backspace") pressBackspace();
     });
 
-    // 釋放或滑出時立即解除按壓效果
     const release = () => btn.classList.remove("pressed");
     btn.addEventListener("pointerup", release);
     btn.addEventListener("pointercancel", release);
     btn.addEventListener("pointerleave", release);
   });
 
-  // 抽屜開關
+  // 抽屜控制
   document.getElementById("histToggleBtn").addEventListener("pointerdown", (e) => {
     e.preventDefault();
     mobileDrawer.style.display = "flex";
@@ -538,7 +571,7 @@
     clearHistory();
   });
 
-  // 實體鍵盤監聽
+  // 鍵盤支援
   window.addEventListener("keydown", (e) => {
     if (e.key >= '0' && e.key <= '9') pressDigit(e.key);
     else if (e.key === '+') pressOp('+');
