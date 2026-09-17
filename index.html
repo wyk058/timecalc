@@ -34,7 +34,7 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang TC", "Microsoft JhengHei", monospace;
     }
 
-    /* 視窗極限鎖死，防止整頁滾動 */
+    /* 鎖定視窗，嚴禁滾動 */
     html, body {
       width: 100%;
       height: 100%;
@@ -67,16 +67,18 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
-      gap: 14px;
+      align-items: center;
+      gap: 12px;
       height: 100%;
       min-width: 0;
     }
 
-    /* 顯示框：縮減留白高度，比例更精簡 */
+    /* 顯示框：寬度與鍵盤嚴格對齊 */
     .display-screen {
+      width: 100%;
       background: var(--screen-bg);
-      border-radius: 16px;
-      padding: 10px 16px;
+      border-radius: 18px;
+      padding: 12px 16px;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -84,14 +86,14 @@
       border: 2px solid var(--screen-border);
       flex-shrink: 0;
       position: relative;
-      min-height: 96px;
+      min-height: 100px;
     }
 
     .mobile-hist-toggle {
       display: none;
       position: absolute;
-      top: 8px;
-      right: 10px;
+      top: 10px;
+      right: 12px;
       background: #e2e8f0;
       color: var(--text-main);
       border: 1px solid #cbd5e1;
@@ -117,7 +119,7 @@
     }
 
     .current-val {
-      font-size: 3.6rem;
+      font-size: 3.8rem;
       font-weight: 900;
       color: var(--text-main);
       letter-spacing: 2px;
@@ -127,17 +129,15 @@
       width: 100%;
     }
 
-    /* 按鍵區：讓按鈕呈現接近 1:1 正方形 */
+    /* 按鍵區：4:5 比例，鎖定正方形結構 */
     .keypad {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       grid-template-rows: repeat(5, 1fr);
       gap: 10px;
       width: 100%;
-      /* 依寬度鎖定等比，維持正方形輪廓 */
       aspect-ratio: 4 / 5;
-      max-height: calc(100% - 120px);
-      margin: 0 auto;
+      flex-shrink: 0;
     }
 
     .calc-btn {
@@ -159,7 +159,6 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    /* 0 毫秒極速按下狀態 */
     .calc-btn.pressed {
       transform: scale(0.93) !important;
       filter: brightness(0.88);
@@ -262,7 +261,7 @@
       font-size: 1.35rem;
     }
 
-    /* 手機防破圖抽屜 */
+    /* 抽屜面板 */
     .drawer-overlay {
       display: none;
       position: fixed;
@@ -287,47 +286,57 @@
       touch-action: pan-y;
     }
 
-    /* 手機直向最佳化 */
+    /* 手機直向排版修復：消除正上方多餘空白 */
     @media (max-width: 720px) {
-      body { padding: 0; }
+      body { 
+        padding: 0; 
+      }
+
       .wrapper {
         width: 100vw;
         height: 100dvh;
         max-height: 100dvh;
         border-radius: 0;
         border: none;
-        padding: 16px 14px 20px 14px;
+        padding: 12px 16px;
         display: flex;
-        flex-direction: column;
-        justify-content: space-between;
+        justify-content: center;
+        align-items: center;
       }
-      .history-panel { display: none; }
-      .mobile-hist-toggle { display: block; }
-      
+
+      .history-panel { 
+        display: none; 
+      }
+
+      .mobile-hist-toggle { 
+        display: block; 
+      }
+
       .calculator {
+        width: 100%;
+        max-width: 360px; /* 控制在單手最好操作的寬度 */
+        height: auto;
+        justify-content: center; /* 垂直居中，不再頂部留白 */
         gap: 12px;
-        justify-content: flex-end; /* 讓計算機往下方大拇指觸碰區集中 */
       }
 
       .display-screen {
-        padding: 12px 14px;
-        min-height: 90px;
-        margin-bottom: 4px;
+        padding: 14px 16px;
+        min-height: 96px;
       }
 
       .current-val { 
-        font-size: 3.2rem; 
+        font-size: 3.4rem; 
       }
 
       .keypad {
         gap: 10px;
-        aspect-ratio: 4 / 5; /* 在手機上嚴格鎖定 4:5 格局，按鍵呈現標準正方形 */
-        max-height: none;
+        aspect-ratio: 4 / 5;
       }
 
       .calc-btn { 
         border-radius: 16px; 
-        font-size: 1.9rem; 
+        font-size: 1.85rem; 
       }
     }
   </style>
@@ -571,7 +580,7 @@
     clearHistory();
   });
 
-  // 鍵盤支援
+  // 實體鍵盤
   window.addEventListener("keydown", (e) => {
     if (e.key >= '0' && e.key <= '9') pressDigit(e.key);
     else if (e.key === '+') pressOp('+');
