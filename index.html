@@ -13,10 +13,8 @@
       --btn-num: #ffffff;
       --btn-num-text: #0f172a;
       --btn-num-border: #cbd5e1;
-      --btn-num-hover: #e2e8f0;
       --btn-op: #2563eb;
       --btn-op-text: #ffffff;
-      --btn-op-hover: #1d4ed8;
       --btn-fn: #e2e8f0;
       --btn-fn-text: #334155;
       --btn-equal: #059669;
@@ -32,10 +30,11 @@
       padding: 0;
       user-select: none;
       -webkit-user-select: none;
+      -webkit-touch-callout: none;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang TC", "Microsoft JhengHei", monospace;
     }
 
-    /* 視窗極限鎖死，防止整頁滾動 */
+    /* 徹底關閉整頁滾動與手勢延遲 */
     html, body {
       width: 100%;
       height: 100%;
@@ -45,6 +44,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      touch-action: none;
     }
 
     .wrapper {
@@ -62,17 +62,15 @@
       position: relative;
     }
 
-    /* 計算機主要視窗 */
     .calculator {
       flex: 1.4;
       display: flex;
       flex-direction: column;
       gap: 12px;
       height: 100%;
-      min-width: 0; /* 防止子元素撐爆 flex */
+      min-width: 0;
     }
 
-    /* 螢幕顯示區 */
     .display-screen {
       background: var(--screen-bg);
       border-radius: 18px;
@@ -86,7 +84,6 @@
       position: relative;
     }
 
-    /* 手機版歷程快捷鈕（平時在右上角） */
     .mobile-hist-toggle {
       display: none;
       position: absolute;
@@ -95,12 +92,13 @@
       background: #e2e8f0;
       color: var(--text-main);
       border: 1px solid #cbd5e1;
-      padding: 4px 10px;
+      padding: 6px 12px;
       border-radius: 8px;
       font-size: 0.9rem;
       font-weight: 700;
       cursor: pointer;
       z-index: 5;
+      touch-action: manipulation;
     }
 
     .expr-history {
@@ -126,7 +124,6 @@
       width: 100%;
     }
 
-    /* 鍵盤區：5 列排版自適應填滿 */
     .keypad {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -136,7 +133,7 @@
       min-height: 0;
     }
 
-    button {
+    .calc-btn {
       border: 1.5px solid var(--btn-num-border);
       outline: none;
       border-radius: 14px;
@@ -148,33 +145,32 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      touch-action: manipulation;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
-      transition: background 0.1s, transform 0.05s;
+      touch-action: none;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+      -webkit-tap-highlight-color: transparent;
     }
 
-    button:active {
-      transform: scale(0.95);
+    /* 0 毫秒極速按下狀態 */
+    .calc-btn.pressed {
+      transform: scale(0.93) !important;
+      filter: brightness(0.88);
     }
 
-    button.btn-num:hover { background: var(--btn-num-hover); }
-
-    button.btn-op {
+    .calc-btn.btn-op {
       background: var(--btn-op);
       color: var(--btn-op-text);
       border: none;
       font-size: 2.2rem;
     }
-    button.btn-op:hover { background: var(--btn-op-hover); }
 
-    button.btn-fn {
+    .calc-btn.btn-fn {
       background: var(--btn-fn);
       color: var(--btn-fn-text);
       border: 1.5px solid #cbd5e1;
       font-size: 1.6rem;
     }
 
-    button.btn-equal {
+    .calc-btn.btn-equal {
       background: var(--btn-equal);
       color: var(--btn-equal-text);
       border: none;
@@ -183,7 +179,7 @@
       height: 100%;
     }
 
-    /* 電腦/平板側邊欄 */
+    /* 桌面側欄 */
     .history-panel {
       flex: 0.9;
       background: var(--screen-bg);
@@ -227,7 +223,8 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
-      padding-right: 4px;
+      touch-action: pan-y;
+      overscroll-behavior: contain;
     }
 
     .history-item {
@@ -255,18 +252,16 @@
       font-size: 1.35rem;
     }
 
-    /* 手機版全螢幕防破圖抽屜 */
+    /* 手機防破圖抽屜 */
     .drawer-overlay {
       display: none;
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100dvh;
+      inset: 0;
       background: rgba(15, 23, 42, 0.5);
       z-index: 999;
       justify-content: center;
       align-items: flex-end;
+      touch-action: none;
     }
 
     .drawer-content {
@@ -279,14 +274,12 @@
       flex-direction: column;
       gap: 12px;
       box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.15);
+      touch-action: pan-y;
     }
 
-    /* 手機版適配（< 720px） */
+    /* 手機直向適配 */
     @media (max-width: 720px) {
-      body {
-        padding: 0;
-      }
-
+      body { padding: 0; }
       .wrapper {
         width: 100vw;
         height: 100dvh;
@@ -295,99 +288,74 @@
         border: none;
         padding: 12px;
       }
-
-      /* 隱藏桌面側欄，避免壓縮破圖 */
-      .history-panel {
-        display: none;
-      }
-
-      /* 顯示歷程按鈕 */
-      .mobile-hist-toggle {
-        display: block;
-      }
-
-      .calculator {
-        gap: 8px;
-      }
-
-      .display-screen {
-        padding: 12px 10px;
-      }
-
-      .current-val {
-        font-size: 3.4rem;
-      }
-
-      .keypad {
-        gap: 8px;
-      }
-
-      button {
-        border-radius: 12px;
-        font-size: 1.8rem;
-      }
+      .history-panel { display: none; }
+      .mobile-hist-toggle { display: block; }
+      .calculator { gap: 8px; }
+      .display-screen { padding: 12px 10px; }
+      .current-val { font-size: 3.4rem; }
+      .keypad { gap: 8px; }
+      .calc-btn { border-radius: 12px; font-size: 1.8rem; }
     }
   </style>
 </head>
 <body>
 
 <div class="wrapper">
-  <!-- 計算機主面板 -->
   <div class="calculator">
     <div class="display-screen">
-      <button class="mobile-hist-toggle" onclick="toggleDrawer(true)">📋 歷程</button>
+      <button class="mobile-hist-toggle" id="histToggleBtn">📋 歷程</button>
       <div class="expr-history" id="exprDisplay"></div>
       <div class="current-val" id="valDisplay">00:00</div>
     </div>
 
     <div class="keypad">
       <!-- Row 1 -->
-      <button class="btn-fn" onclick="pressClear()">AC</button>
-      <button class="btn-fn" onclick="pressBackspace()">⌫</button>
-      <button class="btn-op" onclick="pressOp('÷')">÷</button>
-      <button class="btn-op" onclick="pressOp('×')">×</button>
+      <button class="calc-btn btn-fn" data-act="clear">AC</button>
+      <button class="calc-btn btn-fn" data-act="backspace">⌫</button>
+      <button class="calc-btn btn-op" data-act="op" data-val="÷">÷</button>
+      <button class="calc-btn btn-op" data-act="op" data-val="×">×</button>
 
       <!-- Row 2 -->
-      <button class="btn-num" onclick="pressDigit('7')">7</button>
-      <button class="btn-num" onclick="pressDigit('8')">8</button>
-      <button class="btn-num" onclick="pressDigit('9')">9</button>
-      <button class="btn-op" onclick="pressOp('-')">−</button>
+      <button class="calc-btn" data-act="digit" data-val="7">7</button>
+      <button class="calc-btn" data-act="digit" data-val="8">8</button>
+      <button class="calc-btn" data-act="digit" data-val="9">9</button>
+      <button class="calc-btn btn-op" data-act="op" data-val="-">−</button>
 
       <!-- Row 3 -->
-      <button class="btn-num" onclick="pressDigit('4')">4</button>
-      <button class="btn-num" onclick="pressDigit('5')">5</button>
-      <button class="btn-num" onclick="pressDigit('6')">6</button>
-      <button class="btn-op" onclick="pressOp('+')">+</button>
+      <button class="calc-btn" data-act="digit" data-val="4">4</button>
+      <button class="calc-btn" data-act="digit" data-val="5">5</button>
+      <button class="calc-btn" data-act="digit" data-val="6">6</button>
+      <button class="calc-btn btn-op" data-act="op" data-val="+">+</button>
 
       <!-- Row 4 & 5 -->
-      <button class="btn-num" onclick="pressDigit('1')">1</button>
-      <button class="btn-num" onclick="pressDigit('2')">2</button>
-      <button class="btn-num" onclick="pressDigit('3')">3</button>
-      <button class="btn-equal" onclick="pressEqual()">=</button>
+      <button class="calc-btn" data-act="digit" data-val="1">1</button>
+      <button class="calc-btn" data-act="digit" data-val="2">2</button>
+      <button class="calc-btn" data-act="digit" data-val="3">3</button>
+      <button class="calc-btn btn-equal" data-act="equal">=</button>
 
-      <button class="btn-num" onclick="pressDigit('0')" style="grid-column: span 2;">0</button>
-      <button class="btn-num" onclick="pressDigit('00')">00</button>
+      <button class="calc-btn" data-act="digit" data-val="0" style="grid-column: span 2;">0</button>
+      <button class="calc-btn" data-act="digit" data-val="00">00</button>
     </div>
   </div>
 
-  <!-- 電腦/平板常設右側欄 -->
+  <!-- 桌面側欄 -->
   <div class="history-panel">
     <div class="history-header">
       <span>計算歷程 (Rundown)</span>
-      <button class="clear-btn" onclick="clearHistory()">清空</button>
+      <button class="clear-btn" id="clearHistDesktop">清空</button>
     </div>
     <div class="history-list" id="desktopHistoryList"></div>
   </div>
 </div>
 
 <!-- 手機防破圖專用抽屜 -->
-<div class="drawer-overlay" id="mobileDrawer" onclick="toggleDrawer(false)">
-  <div class="drawer-content" onclick="event.stopPropagation()">
+<div class="drawer-overlay" id="mobileDrawer">
+  <div class="drawer-content" id="drawerContent">
     <div class="history-header">
       <span>計算歷程</span>
       <div style="display:flex; gap:16px;">
-        <button class="clear-btn" onclick="clearHistory()">清空</button>
-        <button class="clear-btn" style="color:var(--text-main);" onclick="toggleDrawer(false)">關閉</button>
+        <button class="clear-btn" id="clearHistMobile">清空</button>
+        <button class="clear-btn" style="color:var(--text-main);" id="closeDrawerBtn">關閉</button>
       </div>
     </div>
     <div class="history-list" id="mobileHistoryList" style="max-height: 60dvh;"></div>
@@ -405,6 +373,12 @@
   const desktopHistoryList = document.getElementById("desktopHistoryList");
   const mobileHistoryList = document.getElementById("mobileHistoryList");
   const mobileDrawer = document.getElementById("mobileDrawer");
+
+  function triggerHaptic() {
+    if ("vibrate" in navigator) {
+      navigator.vibrate(10); // 清脆微小震動反饋
+    }
+  }
 
   function digitsToTime(str) {
     if (!str || str === "0") return { m: 0, s: 0, formatted: "00:00", totalSec: 0 };
@@ -505,13 +479,11 @@
   }
 
   function addHistory(eq, res) {
-    // 桌面版側欄
     const item1 = document.createElement("div");
     item1.className = "history-item";
     item1.innerHTML = `<span class="hist-eq">${eq}</span><span class="hist-res">= ${res}</span>`;
     desktopHistoryList.prepend(item1);
 
-    // 手機抽屜版
     const item2 = item1.cloneNode(true);
     mobileHistoryList.prepend(item2);
   }
@@ -521,11 +493,52 @@
     mobileHistoryList.innerHTML = "";
   }
 
-  function toggleDrawer(show) {
-    mobileDrawer.style.display = show ? "flex" : "none";
-  }
+  // --- 高靈敏 Pointer 事件綁定（徹底解決延遲） ---
+  document.querySelectorAll(".calc-btn").forEach(btn => {
+    btn.addEventListener("pointerdown", (e) => {
+      e.preventDefault(); // 阻止觸發傳統 300ms click
+      btn.classList.add("pressed");
+      triggerHaptic();
 
-  // 實體鍵盤支援
+      const act = btn.dataset.act;
+      const val = btn.dataset.val;
+
+      if (act === "digit") pressDigit(val);
+      else if (act === "op") pressOp(val);
+      else if (act === "equal") pressEqual();
+      else if (act === "clear") pressClear();
+      else if (act === "backspace") pressBackspace();
+    });
+
+    // 釋放或滑出時立即解除按壓效果
+    const release = () => btn.classList.remove("pressed");
+    btn.addEventListener("pointerup", release);
+    btn.addEventListener("pointercancel", release);
+    btn.addEventListener("pointerleave", release);
+  });
+
+  // 抽屜開關
+  document.getElementById("histToggleBtn").addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    mobileDrawer.style.display = "flex";
+  });
+  document.getElementById("closeDrawerBtn").addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    mobileDrawer.style.display = "none";
+  });
+  document.getElementById("mobileDrawer").addEventListener("pointerdown", (e) => {
+    if (e.target === mobileDrawer) mobileDrawer.style.display = "none";
+  });
+  document.getElementById("clearHistDesktop").addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    clearHistory();
+  });
+  document.getElementById("clearHistMobile").addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    clearHistory();
+  });
+
+  // 實體鍵盤監聽
   window.addEventListener("keydown", (e) => {
     if (e.key >= '0' && e.key <= '9') pressDigit(e.key);
     else if (e.key === '+') pressOp('+');
