@@ -34,7 +34,6 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang TC", "Microsoft JhengHei", monospace;
     }
 
-    /* 鎖定視窗，嚴禁滾動 */
     html, body {
       width: 100%;
       height: 100%;
@@ -73,7 +72,6 @@
       min-width: 0;
     }
 
-    /* 顯示框：寬度與鍵盤嚴格對齊 */
     .display-screen {
       width: 100%;
       background: var(--screen-bg);
@@ -129,7 +127,7 @@
       width: 100%;
     }
 
-    /* 按鍵區：4:5 比例，鎖定正方形結構 */
+    /* 4:5 比例的正方形鍵盤網格 */
     .keypad {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -171,6 +169,13 @@
       font-size: 2.2rem;
     }
 
+    /* 加號做成大按鈕：跨兩列 */
+    .calc-btn.btn-plus {
+      grid-row: span 2;
+      height: 100%;
+      font-size: 2.5rem;
+    }
+
     .calc-btn.btn-fn {
       background: var(--btn-fn);
       color: var(--btn-fn-text);
@@ -182,10 +187,7 @@
       background: var(--btn-equal);
       color: var(--btn-equal-text);
       border: none;
-      font-size: 2.4rem;
-      grid-row: span 2;
-      height: 100%;
-      border-radius: 16px;
+      font-size: 2.2rem;
     }
 
     /* 桌面側欄 */
@@ -286,12 +288,8 @@
       touch-action: pan-y;
     }
 
-    /* 手機直向排版修復：消除正上方多餘空白 */
     @media (max-width: 720px) {
-      body { 
-        padding: 0; 
-      }
-
+      body { padding: 0; }
       .wrapper {
         width: 100vw;
         height: 100dvh;
@@ -304,19 +302,14 @@
         align-items: center;
       }
 
-      .history-panel { 
-        display: none; 
-      }
-
-      .mobile-hist-toggle { 
-        display: block; 
-      }
+      .history-panel { display: none; }
+      .mobile-hist-toggle { display: block; }
 
       .calculator {
         width: 100%;
-        max-width: 360px; /* 控制在單手最好操作的寬度 */
+        max-width: 360px;
         height: auto;
-        justify-content: center; /* 垂直居中，不再頂部留白 */
+        justify-content: center;
         gap: 12px;
       }
 
@@ -325,19 +318,9 @@
         min-height: 96px;
       }
 
-      .current-val { 
-        font-size: 3.4rem; 
-      }
-
-      .keypad {
-        gap: 10px;
-        aspect-ratio: 4 / 5;
-      }
-
-      .calc-btn { 
-        border-radius: 16px; 
-        font-size: 1.85rem; 
-      }
+      .current-val { font-size: 3.4rem; }
+      .keypad { gap: 10px; aspect-ratio: 4 / 5; }
+      .calc-btn { border-radius: 16px; font-size: 1.85rem; }
     }
   </style>
 </head>
@@ -351,33 +334,35 @@
       <div class="current-val" id="valDisplay">00:00</div>
     </div>
 
+    <!-- 全新人體工學配置鍵盤 -->
     <div class="keypad">
-      <!-- Row 1 -->
+      <!-- Row 1: 功能鍵 + 乘除 -->
       <button class="calc-btn btn-fn" data-act="clear">AC</button>
       <button class="calc-btn btn-fn" data-act="backspace">⌫</button>
+      <button class="calc-btn btn-fn" data-act="negate">±</button>
       <button class="calc-btn btn-op" data-act="op" data-val="÷">÷</button>
-      <button class="calc-btn btn-op" data-act="op" data-val="×">×</button>
 
-      <!-- Row 2 -->
+      <!-- Row 2: 7 8 9 × -->
       <button class="calc-btn" data-act="digit" data-val="7">7</button>
       <button class="calc-btn" data-act="digit" data-val="8">8</button>
       <button class="calc-btn" data-act="digit" data-val="9">9</button>
-      <button class="calc-btn btn-op" data-act="op" data-val="-">−</button>
+      <button class="calc-btn btn-op" data-act="op" data-val="×">×</button>
 
-      <!-- Row 3 -->
+      <!-- Row 3: 4 5 6 − -->
       <button class="calc-btn" data-act="digit" data-val="4">4</button>
       <button class="calc-btn" data-act="digit" data-val="5">5</button>
       <button class="calc-btn" data-act="digit" data-val="6">6</button>
-      <button class="calc-btn btn-op" data-act="op" data-val="+">+</button>
+      <button class="calc-btn btn-op" data-act="op" data-val="-">−</button>
 
-      <!-- Row 4 & 5 -->
+      <!-- Row 4 & 5: 1 2 3 與 0 00 =，最右側是跨兩格的超大加號 [+] -->
       <button class="calc-btn" data-act="digit" data-val="1">1</button>
       <button class="calc-btn" data-act="digit" data-val="2">2</button>
       <button class="calc-btn" data-act="digit" data-val="3">3</button>
-      <button class="calc-btn btn-equal" data-act="equal">=</button>
+      <button class="calc-btn btn-op btn-plus" data-act="op" data-val="+">+</button>
 
-      <button class="calc-btn" data-act="digit" data-val="0" style="grid-column: span 2;">0</button>
+      <button class="calc-btn" data-act="digit" data-val="0">0</button>
       <button class="calc-btn" data-act="digit" data-val="00">00</button>
+      <button class="calc-btn btn-equal" data-act="equal">=</button>
     </div>
   </div>
 
@@ -410,6 +395,7 @@
   let storedSec = null;
   let pendingOp = null;
   let isNewEntry = true;
+  let isNegative = false;
 
   const valDisplay = document.getElementById("valDisplay");
   const exprDisplay = document.getElementById("exprDisplay");
@@ -423,13 +409,14 @@
     }
   }
 
-  function digitsToTime(str) {
+  function digitsToTime(str, negative = false) {
     if (!str || str === "0") return { m: 0, s: 0, formatted: "00:00", totalSec: 0 };
     const padded = str.padStart(4, "0");
     const s = parseInt(padded.slice(-2), 10);
     const m = parseInt(padded.slice(0, -2), 10);
-    const totalSec = m * 60 + s;
-    const formatted = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    let totalSec = m * 60 + s;
+    if (negative) totalSec = -totalSec;
+    const formatted = `${negative ? "-" : ""}${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
     return { m, s, formatted, totalSec };
   }
 
@@ -443,12 +430,13 @@
   }
 
   function renderCurrentInput() {
-    valDisplay.textContent = digits === "" ? "00:00" : digitsToTime(digits).formatted;
+    valDisplay.textContent = digits === "" ? "00:00" : digitsToTime(digits, isNegative).formatted;
   }
 
   function pressDigit(d) {
     if (isNewEntry) {
       digits = "";
+      isNegative = false;
       isNewEntry = false;
     }
     if (digits === "" && (d === "0" || d === "00")) return;
@@ -460,6 +448,7 @@
   function pressBackspace() {
     if (isNewEntry) return;
     digits = digits.slice(0, -1);
+    if (digits === "") isNegative = false;
     renderCurrentInput();
   }
 
@@ -468,12 +457,23 @@
     storedSec = null;
     pendingOp = null;
     isNewEntry = true;
+    isNegative = false;
     exprDisplay.textContent = "";
     valDisplay.textContent = "00:00";
   }
 
+  function pressNegate() {
+    if (digits !== "") {
+      isNegative = !isNegative;
+      renderCurrentInput();
+    } else if (storedSec !== null) {
+      storedSec = -storedSec;
+      valDisplay.textContent = formatSeconds(storedSec);
+    }
+  }
+
   function pressOp(op) {
-    const currentSec = digits === "" ? 0 : digitsToTime(digits).totalSec;
+    const currentSec = digits === "" ? 0 : digitsToTime(digits, isNegative).totalSec;
     if (storedSec === null) {
       storedSec = currentSec;
     } else if (!isNewEntry && pendingOp) {
@@ -481,6 +481,7 @@
     }
     pendingOp = op;
     isNewEntry = true;
+    isNegative = false;
     exprDisplay.textContent = `${formatSeconds(storedSec)} ${op}`;
     valDisplay.textContent = formatSeconds(storedSec);
   }
@@ -503,7 +504,7 @@
 
   function pressEqual() {
     if (pendingOp === null || storedSec === null) return;
-    const currentSec = digits === "" ? 0 : digitsToTime(digits).totalSec;
+    const currentSec = digits === "" ? 0 : digitsToTime(digits, isNegative).totalSec;
     const resultSec = executeCalc(storedSec, currentSec, pendingOp);
 
     let secondOperandText = formatSeconds(currentSec);
@@ -518,6 +519,7 @@
     storedSec = resultSec;
     pendingOp = null;
     digits = "";
+    isNegative = false;
     isNewEntry = true;
   }
 
@@ -551,6 +553,7 @@
       else if (act === "equal") pressEqual();
       else if (act === "clear") pressClear();
       else if (act === "backspace") pressBackspace();
+      else if (act === "negate") pressNegate();
     });
 
     const release = () => btn.classList.remove("pressed");
@@ -580,7 +583,7 @@
     clearHistory();
   });
 
-  // 實體鍵盤
+  // 實體鍵盤支援
   window.addEventListener("keydown", (e) => {
     if (e.key >= '0' && e.key <= '9') pressDigit(e.key);
     else if (e.key === '+') pressOp('+');
