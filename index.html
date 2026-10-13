@@ -127,7 +127,6 @@
       width: 100%;
     }
 
-    /* 4:5 比例的正方形鍵盤網格 */
     .keypad {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -169,7 +168,6 @@
       font-size: 2.2rem;
     }
 
-    /* 加號做成大按鈕：跨兩列 */
     .calc-btn.btn-plus {
       grid-row: span 2;
       height: 100%;
@@ -180,7 +178,7 @@
       background: var(--btn-fn);
       color: var(--btn-fn-text);
       border: 1.5px solid #cbd5e1;
-      font-size: 1.6rem;
+      font-size: 1.5rem;
     }
 
     .calc-btn.btn-equal {
@@ -190,7 +188,6 @@
       font-size: 2.2rem;
     }
 
-    /* 桌面側欄 */
     .history-panel {
       flex: 0.9;
       background: var(--screen-bg);
@@ -263,7 +260,6 @@
       font-size: 1.35rem;
     }
 
-    /* 抽屜面板 */
     .drawer-overlay {
       display: none;
       position: fixed;
@@ -334,10 +330,9 @@
       <div class="current-val" id="valDisplay">00:00</div>
     </div>
 
-    <!-- 全新人體工學配置鍵盤 -->
     <div class="keypad">
       <!-- Row 1: 功能鍵 + 乘除 -->
-      <button class="calc-btn btn-fn" data-act="clear">AC</button>
+      <button class="calc-btn btn-fn" data-act="clear">歸零</button>
       <button class="calc-btn btn-fn" data-act="backspace">⌫</button>
       <button class="calc-btn btn-fn" data-act="negate">±</button>
       <button class="calc-btn btn-op" data-act="op" data-val="÷">÷</button>
@@ -354,7 +349,7 @@
       <button class="calc-btn" data-act="digit" data-val="6">6</button>
       <button class="calc-btn btn-op" data-act="op" data-val="-">−</button>
 
-      <!-- Row 4 & 5: 1 2 3 與 0 00 =，最右側是跨兩格的超大加號 [+] -->
+      <!-- Row 4 & 5: 1 2 3 與 0 00 =，最右側是大加號 [+] -->
       <button class="calc-btn" data-act="digit" data-val="1">1</button>
       <button class="calc-btn" data-act="digit" data-val="2">2</button>
       <button class="calc-btn" data-act="digit" data-val="3">3</button>
@@ -366,7 +361,6 @@
     </div>
   </div>
 
-  <!-- 桌面側欄 -->
   <div class="history-panel">
     <div class="history-header">
       <span>計算歷程 (Rundown)</span>
@@ -376,7 +370,6 @@
   </div>
 </div>
 
-<!-- 手機防破圖專用抽屜 -->
 <div class="drawer-overlay" id="mobileDrawer">
   <div class="drawer-content" id="drawerContent">
     <div class="history-header">
@@ -396,6 +389,7 @@
   let pendingOp = null;
   let isNewEntry = true;
   let isNegative = false;
+  let justFinishedCalc = false; // 是否剛剛按過等號完成計算
 
   const valDisplay = document.getElementById("valDisplay");
   const exprDisplay = document.getElementById("exprDisplay");
@@ -434,11 +428,21 @@
   }
 
   function pressDigit(d) {
-    if (isNewEntry) {
+    // 若剛按過等號，按數字直接展開全新的計算
+    if (justFinishedCalc) {
+      storedSec = null;
+      pendingOp = null;
+      exprDisplay.textContent = "";
+      digits = "";
+      isNegative = false;
+      justFinishedCalc = false;
+      isNewEntry = false;
+    } else if (isNewEntry) {
       digits = "";
       isNegative = false;
       isNewEntry = false;
     }
+
     if (digits === "" && (d === "0" || d === "00")) return;
     if (digits.length >= 6) return;
     digits += d;
@@ -446,6 +450,10 @@
   }
 
   function pressBackspace() {
+    if (justFinishedCalc) {
+      pressClear();
+      return;
+    }
     if (isNewEntry) return;
     digits = digits.slice(0, -1);
     if (digits === "") isNegative = false;
@@ -458,6 +466,7 @@
     pendingOp = null;
     isNewEntry = true;
     isNegative = false;
+    justFinishedCalc = false;
     exprDisplay.textContent = "";
     valDisplay.textContent = "00:00";
   }
@@ -473,6 +482,8 @@
   }
 
   function pressOp(op) {
+    justFinishedCalc = false; // 按運算子時繼續沿用答案
+
     const currentSec = digits === "" ? 0 : digitsToTime(digits, isNegative).totalSec;
     if (storedSec === null) {
       storedSec = currentSec;
@@ -481,120 +492,3 @@
     }
     pendingOp = op;
     isNewEntry = true;
-    isNegative = false;
-    exprDisplay.textContent = `${formatSeconds(storedSec)} ${op}`;
-    valDisplay.textContent = formatSeconds(storedSec);
-  }
-
-  function executeCalc(a, b, op) {
-    switch (op) {
-      case '+': return a + b;
-      case '-': return a - b;
-      case '×': {
-        const factor = digits !== "" ? parseInt(digits, 10) : b;
-        return a * factor;
-      }
-      case '÷': {
-        const divisor = digits !== "" ? parseInt(digits, 10) : b;
-        return divisor !== 0 ? Math.round(a / divisor) : 0;
-      }
-      default: return b;
-    }
-  }
-
-  function pressEqual() {
-    if (pendingOp === null || storedSec === null) return;
-    const currentSec = digits === "" ? 0 : digitsToTime(digits, isNegative).totalSec;
-    const resultSec = executeCalc(storedSec, currentSec, pendingOp);
-
-    let secondOperandText = formatSeconds(currentSec);
-    if (pendingOp === '×' || pendingOp === '÷') secondOperandText = digits || "1";
-
-    const fullExpr = `${formatSeconds(storedSec)} ${pendingOp} ${secondOperandText}`;
-    addHistory(fullExpr, formatSeconds(resultSec));
-
-    exprDisplay.textContent = `${fullExpr} =`;
-    valDisplay.textContent = formatSeconds(resultSec);
-
-    storedSec = resultSec;
-    pendingOp = null;
-    digits = "";
-    isNegative = false;
-    isNewEntry = true;
-  }
-
-  function addHistory(eq, res) {
-    const item1 = document.createElement("div");
-    item1.className = "history-item";
-    item1.innerHTML = `<span class="hist-eq">${eq}</span><span class="hist-res">= ${res}</span>`;
-    desktopHistoryList.prepend(item1);
-
-    const item2 = item1.cloneNode(true);
-    mobileHistoryList.prepend(item2);
-  }
-
-  function clearHistory() {
-    desktopHistoryList.innerHTML = "";
-    mobileHistoryList.innerHTML = "";
-  }
-
-  // Pointer 事件綁定
-  document.querySelectorAll(".calc-btn").forEach(btn => {
-    btn.addEventListener("pointerdown", (e) => {
-      e.preventDefault();
-      btn.classList.add("pressed");
-      triggerHaptic();
-
-      const act = btn.dataset.act;
-      const val = btn.dataset.val;
-
-      if (act === "digit") pressDigit(val);
-      else if (act === "op") pressOp(val);
-      else if (act === "equal") pressEqual();
-      else if (act === "clear") pressClear();
-      else if (act === "backspace") pressBackspace();
-      else if (act === "negate") pressNegate();
-    });
-
-    const release = () => btn.classList.remove("pressed");
-    btn.addEventListener("pointerup", release);
-    btn.addEventListener("pointercancel", release);
-    btn.addEventListener("pointerleave", release);
-  });
-
-  // 抽屜控制
-  document.getElementById("histToggleBtn").addEventListener("pointerdown", (e) => {
-    e.preventDefault();
-    mobileDrawer.style.display = "flex";
-  });
-  document.getElementById("closeDrawerBtn").addEventListener("pointerdown", (e) => {
-    e.preventDefault();
-    mobileDrawer.style.display = "none";
-  });
-  document.getElementById("mobileDrawer").addEventListener("pointerdown", (e) => {
-    if (e.target === mobileDrawer) mobileDrawer.style.display = "none";
-  });
-  document.getElementById("clearHistDesktop").addEventListener("pointerdown", (e) => {
-    e.preventDefault();
-    clearHistory();
-  });
-  document.getElementById("clearHistMobile").addEventListener("pointerdown", (e) => {
-    e.preventDefault();
-    clearHistory();
-  });
-
-  // 實體鍵盤支援
-  window.addEventListener("keydown", (e) => {
-    if (e.key >= '0' && e.key <= '9') pressDigit(e.key);
-    else if (e.key === '+') pressOp('+');
-    else if (e.key === '-') pressOp('-');
-    else if (e.key === '*') pressOp('×');
-    else if (e.key === '/') { e.preventDefault(); pressOp('÷'); }
-    else if (e.key === 'Enter' || e.key === '=') pressEqual();
-    else if (e.key === 'Backspace') pressBackspace();
-    else if (e.key === 'Escape') pressClear();
-  });
-</script>
-
-</body>
-</html>
