@@ -22,8 +22,6 @@
       --text-main: #0f172a;
       --text-muted: #64748b;
       --accent: #0284c7;
-      --over-time: #dc2626;
-      --under-time: #16a34a;
     }
 
     * {
@@ -69,46 +67,17 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
       height: 100%;
       min-width: 0;
     }
 
-    /* 頂部輕量控制條：目標長度選單 */
-    .top-bar {
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0 4px;
-    }
-
-    .target-selector {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--text-muted);
-    }
-
-    .target-selector select {
-      background: #e2e8f0;
-      color: var(--text-main);
-      border: 1px solid #cbd5e1;
-      padding: 4px 8px;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      font-weight: 700;
-      outline: none;
-    }
-
-    /* 顯示框 */
+    /* 乾淨純粹的螢幕 */
     .display-screen {
       width: 100%;
       background: var(--screen-bg);
       border-radius: 18px;
-      padding: 10px 16px;
+      padding: 12px 16px;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -116,11 +85,14 @@
       border: 2px solid var(--screen-border);
       flex-shrink: 0;
       position: relative;
-      min-height: 108px;
+      min-height: 100px;
     }
 
     .mobile-hist-toggle {
       display: none;
+      position: absolute;
+      top: 10px;
+      right: 12px;
       background: #e2e8f0;
       color: var(--text-main);
       border: 1px solid #cbd5e1;
@@ -129,14 +101,15 @@
       font-size: 0.85rem;
       font-weight: 700;
       cursor: pointer;
+      z-index: 5;
       touch-action: manipulation;
     }
 
     .expr-history {
-      font-size: 1.1rem;
+      font-size: 1.15rem;
       font-weight: 600;
       color: var(--text-muted);
-      min-height: 20px;
+      min-height: 22px;
       text-align: center;
       width: 100%;
       overflow: hidden;
@@ -145,38 +118,14 @@
     }
 
     .current-val {
-      font-size: 3.6rem;
+      font-size: 3.8rem;
       font-weight: 900;
       color: var(--text-main);
       letter-spacing: 2px;
       font-variant-numeric: tabular-nums;
-      line-height: 1.05;
+      line-height: 1.1;
       text-align: center;
       width: 100%;
-    }
-
-    /* 即時輔助資訊列：目標比對 + 預計結束時間 */
-    .screen-meta {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      margin-top: 4px;
-      font-size: 0.85rem;
-      font-weight: 700;
-    }
-
-    .meta-diff {
-      padding: 2px 8px;
-      border-radius: 6px;
-      background: #e2e8f0;
-      color: var(--text-muted);
-    }
-    .meta-diff.over { background: #fee2e2; color: var(--over-time); }
-    .meta-diff.under { background: #dcfce7; color: var(--under-time); }
-
-    .meta-finish {
-      color: var(--text-muted);
-      font-variant-numeric: tabular-nums;
     }
 
     /* 4:5 比例正方形鍵盤 */
@@ -258,7 +207,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
       padding-bottom: 8px;
       border-bottom: 2px solid #e2e8f0;
       flex-shrink: 0;
@@ -268,13 +217,6 @@
       font-weight: 800;
       font-size: 1.15rem;
       color: var(--text-main);
-    }
-
-    .history-tip {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-bottom: 8px;
-      text-align: center;
     }
 
     .clear-btn {
@@ -296,6 +238,7 @@
       overscroll-behavior: contain;
     }
 
+    /* 歷史紀錄項目：支援點擊反饋 */
     .history-item {
       padding: 10px 12px;
       background: #ffffff;
@@ -308,16 +251,18 @@
       flex-shrink: 0;
       cursor: pointer;
       transition: border-color 0.15s, transform 0.08s;
+      -webkit-tap-highlight-color: transparent;
     }
 
     .history-item:active {
-      transform: scale(0.97);
+      transform: scale(0.96);
       border-color: var(--accent);
+      background: #f8fafc;
     }
 
     .history-item .hist-eq {
       color: var(--text-muted);
-      font-size: 0.95rem;
+      font-size: 1rem;
       font-weight: 600;
       word-break: break-all;
     }
@@ -325,9 +270,10 @@
     .history-item .hist-res {
       color: var(--accent);
       font-weight: 900;
-      font-size: 1.3rem;
+      font-size: 1.35rem;
     }
 
+    /* 手機抽屜面板 */
     .drawer-overlay {
       display: none;
       position: fixed;
@@ -347,7 +293,7 @@
       padding: 18px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
       box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.15);
       touch-action: pan-y;
     }
@@ -360,7 +306,7 @@
         max-height: 100dvh;
         border-radius: 0;
         border: none;
-        padding: 10px 16px;
+        padding: 12px 16px;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -374,15 +320,15 @@
         max-width: 360px;
         height: auto;
         justify-content: center;
-        gap: 8px;
+        gap: 12px;
       }
 
       .display-screen {
-        padding: 10px 14px;
-        min-height: 98px;
+        padding: 14px 16px;
+        min-height: 96px;
       }
 
-      .current-val { font-size: 3.2rem; }
+      .current-val { font-size: 3.4rem; }
       .keypad { gap: 10px; aspect-ratio: 4 / 5; }
       .calc-btn { border-radius: 16px; font-size: 1.85rem; }
     }
@@ -392,52 +338,33 @@
 
 <div class="wrapper">
   <div class="calculator">
-    <!-- 頂部工具列 -->
-    <div class="top-bar">
-      <div class="target-selector">
-        <span>目標規格：</span>
-        <select id="targetSelect" onchange="updateMetaDisplays()">
-          <option value="0">無設定</option>
-          <option value="3000">50:00 (標準節目)</option>
-          <option value="3600">60:00 (整點一小時)</option>
-          <option value="1800">30:00 (半小時)</option>
-          <option value="1200">20:00 (段落)</option>
-        </select>
-      </div>
-      <button class="mobile-hist-toggle" id="histToggleBtn">📋 歷程</button>
-    </div>
-
-    <!-- 螢幕區 -->
     <div class="display-screen">
+      <button class="mobile-hist-toggle" id="histToggleBtn">📋 歷程</button>
       <div class="expr-history" id="exprDisplay"></div>
       <div class="current-val" id="valDisplay">00:00</div>
-      <div class="screen-meta" id="screenMeta" style="display: none;">
-        <span class="meta-diff" id="metaDiff">-</span>
-        <span class="meta-finish" id="metaFinish">播至 --:--:--</span>
-      </div>
     </div>
 
-    <!-- 鍵盤區 -->
+    <!-- 經典配置鍵盤 -->
     <div class="keypad">
-      <!-- Row 1 -->
+      <!-- Row 1: 功能鍵 + 乘除 -->
       <button class="calc-btn btn-fn" data-act="clear">歸零</button>
       <button class="calc-btn btn-fn" data-act="backspace">⌫</button>
       <button class="calc-btn btn-fn" data-act="negate">±</button>
       <button class="calc-btn btn-op" data-act="op" data-val="÷">÷</button>
 
-      <!-- Row 2 -->
+      <!-- Row 2: 7 8 9 × -->
       <button class="calc-btn" data-act="digit" data-val="7">7</button>
       <button class="calc-btn" data-act="digit" data-val="8">8</button>
       <button class="calc-btn" data-act="digit" data-val="9">9</button>
       <button class="calc-btn btn-op" data-act="op" data-val="×">×</button>
 
-      <!-- Row 3 -->
+      <!-- Row 3: 4 5 6 − -->
       <button class="calc-btn" data-act="digit" data-val="4">4</button>
       <button class="calc-btn" data-act="digit" data-val="5">5</button>
       <button class="calc-btn" data-act="digit" data-val="6">6</button>
       <button class="calc-btn btn-op" data-act="op" data-val="-">−</button>
 
-      <!-- Row 4 & 5 -->
+      <!-- Row 4 & 5: 1 2 3 與 0 00 =，最右側是大加號 [+] -->
       <button class="calc-btn" data-act="digit" data-val="1">1</button>
       <button class="calc-btn" data-act="digit" data-val="2">2</button>
       <button class="calc-btn" data-act="digit" data-val="3">3</button>
@@ -455,7 +382,6 @@
       <span>計算歷程 (Rundown)</span>
       <button class="clear-btn" id="clearHistDesktop">清空</button>
     </div>
-    <div class="history-tip">💡 點擊任一筆紀錄可直接帶回數值</div>
     <div class="history-list" id="desktopHistoryList"></div>
   </div>
 </div>
@@ -470,8 +396,7 @@
         <button class="clear-btn" style="color:var(--text-main);" id="closeDrawerBtn">關閉</button>
       </div>
     </div>
-    <div class="history-tip">💡 點擊任一筆紀錄可直接帶回數值</div>
-    <div class="history-list" id="mobileHistoryList" style="max-height: 55dvh;"></div>
+    <div class="history-list" id="mobileHistoryList" style="max-height: 60dvh;"></div>
   </div>
 </div>
 
@@ -485,10 +410,6 @@
 
   const valDisplay = document.getElementById("valDisplay");
   const exprDisplay = document.getElementById("exprDisplay");
-  const screenMeta = document.getElementById("screenMeta");
-  const metaDiff = document.getElementById("metaDiff");
-  const metaFinish = document.getElementById("metaFinish");
-  const targetSelect = document.getElementById("targetSelect");
   const desktopHistoryList = document.getElementById("desktopHistoryList");
   const mobileHistoryList = document.getElementById("mobileHistoryList");
   const mobileDrawer = document.getElementById("mobileDrawer");
@@ -517,53 +438,8 @@
     return isNeg ? `-${res}` : res;
   }
 
-  function updateMetaDisplays() {
-    const targetSec = parseInt(targetSelect.value, 10);
-    const currentSec = (storedSec !== null && justFinishedCalc) ? storedSec : 
-                       (digits !== "" ? digitsToTime(digits, isNegative).totalSec : 0);
-
-    if (currentSec === 0 && targetSec === 0) {
-      screenMeta.style.display = "none";
-      return;
-    }
-
-    screenMeta.style.display = "flex";
-
-    // 1. 預計播至幾點幾分
-    if (currentSec > 0) {
-      const now = new Date();
-      now.setSeconds(now.getSeconds() + currentSec);
-      const hh = String(now.getHours()).padStart(2, '0');
-      const mm = String(now.getMinutes()).padStart(2, '0');
-      const ss = String(now.getSeconds()).padStart(2, '0');
-      metaFinish.textContent = `預計至 ${hh}:${mm}:${ss}`;
-      metaFinish.style.display = "inline";
-    } else {
-      metaFinish.style.display = "none";
-    }
-
-    // 2. 目標差額換算
-    if (targetSec > 0 && currentSec !== 0) {
-      const diff = targetSec - currentSec;
-      metaDiff.style.display = "inline";
-      if (diff > 0) {
-        metaDiff.textContent = `剩餘 ${formatSeconds(diff)}`;
-        metaDiff.className = "meta-diff under";
-      } else if (diff < 0) {
-        metaDiff.textContent = `超時 +${formatSeconds(Math.abs(diff))}`;
-        metaDiff.className = "meta-diff over";
-      } else {
-        metaDiff.textContent = `精準走滿 🎯`;
-        metaDiff.className = "meta-diff under";
-      }
-    } else {
-      metaDiff.style.display = "none";
-    }
-  }
-
   function renderCurrentInput() {
     valDisplay.textContent = digits === "" ? "00:00" : digitsToTime(digits, isNegative).formatted;
-    updateMetaDisplays();
   }
 
   function pressDigit(d) {
@@ -607,7 +483,6 @@
     justFinishedCalc = false;
     exprDisplay.textContent = "";
     valDisplay.textContent = "00:00";
-    updateMetaDisplays();
   }
 
   function pressNegate() {
@@ -617,12 +492,12 @@
     } else if (storedSec !== null) {
       storedSec = -storedSec;
       valDisplay.textContent = formatSeconds(storedSec);
-      updateMetaDisplays();
     }
   }
 
   function pressOp(op) {
     justFinishedCalc = false;
+
     const currentSec = digits === "" ? 0 : digitsToTime(digits, isNegative).totalSec;
     if (storedSec === null) {
       storedSec = currentSec;
@@ -634,7 +509,6 @@
     isNegative = false;
     exprDisplay.textContent = `${formatSeconds(storedSec)} ${op}`;
     valDisplay.textContent = formatSeconds(storedSec);
-    updateMetaDisplays();
   }
 
   function executeCalc(a, b, op) {
@@ -673,10 +547,9 @@
     isNegative = false;
     isNewEntry = true;
     justFinishedCalc = true;
-    updateMetaDisplays();
   }
 
-  // 帶回歷史數字功能 (Recall)
+  // 帶回歷史結果（Recall）
   function recallHistory(totalSec) {
     const abs = Math.abs(totalSec);
     const m = Math.floor(abs / 60);
@@ -708,7 +581,7 @@
     mobileHistoryList.innerHTML = "";
   }
 
-  // Pointer 快速綁定
+  // Pointer 事件綁定（0ms 零延遲）
   document.querySelectorAll(".calc-btn").forEach(btn => {
     btn.addEventListener("pointerdown", (e) => {
       e.preventDefault();
@@ -753,7 +626,7 @@
     clearHistory();
   });
 
-  // 鍵盤支援
+  // 實體鍵盤監聽
   window.addEventListener("keydown", (e) => {
     if (e.key >= '0' && e.key <= '9') pressDigit(e.key);
     else if (e.key === '+') pressOp('+');
